@@ -1,13 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
+import App from './App.js'
 import './index.css'
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom'
-import Home from "./Components/Home/Home.jsx"
-import Login from './Components/Login/Login.jsx'
-import Signup from './Components/Signup/Signup.jsx'
-import ProfileEdit from './Components/Pofile/ProfileEdit.jsx'
-import UserList from './Components/UserList/UserList.jsx'
+import Home from "./Components/Home/Home.js"
+import Login from './Components/Login/Login.js'
+import Signup from './Components/Signup/Signup.js'
+import ProfileEdit from './Components/Pofile/ProfileEdit.js'
+import UserList from './Components/UserList/UserList.js'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -21,7 +21,7 @@ const router = createBrowserRouter(
   )
 )
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <RouterProvider router={router}/>
   </React.StrictMode>,

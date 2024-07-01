@@ -1,15 +1,25 @@
-import { useState } from "react";
+import { useState, ChangeEvent, FormEvent } from "react";
 import { Link } from "react-router-dom";
 
+interface FormData {
+  loginEmail: string;
+  loginPassword: string;
+}
+
+interface FormErrors {
+  loginEmail?: string;
+  loginPassword?: string;
+}
+
 function Login() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     loginEmail: "",
     loginPassword: "",
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<FormErrors>({});
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -17,13 +27,13 @@ function Login() {
     });
   };
 
-  const validateEmail = (email) => {
+  const validateEmail = (email: string): boolean => {
     const emailPattern = /\S+@\S+\.\S+/;
     return emailPattern.test(email);
   };
 
-  const validateForm = () => {
-    let formErrors = {};
+  const validateForm = (): boolean => {
+    const formErrors: FormErrors = {};
     let isValid = true;
 
     if (!formData.loginEmail) {
@@ -46,7 +56,7 @@ function Login() {
     return isValid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validateForm()) {
       // Handle successful form submission

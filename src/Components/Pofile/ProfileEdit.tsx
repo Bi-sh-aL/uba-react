@@ -6,9 +6,7 @@ function ProfileEdit() {
           <h2 className="text-2xl font-bold text-center mb-4">Edit Profile</h2>
           <form
             className="flex flex-wrap justify-between"
-            action
             id="profileForm"
-            onsubmit="return validateProfileForm()"
           >
             <div className="mb-4">
               <label className="font-bold block mb-2" htmlFor="firstName">

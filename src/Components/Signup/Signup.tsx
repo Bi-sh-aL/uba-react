@@ -1,8 +1,25 @@
-import { useState } from "react";
+import { useState, ChangeEvent, FormEvent } from "react";
 import { Link } from "react-router-dom";
 
+
+interface FormData {
+  signupUsername: string;
+  signupEmail: string;
+  mobileNumber: string;
+  signupPassword: string;
+  confirmPassword: string;
+}
+
+interface FormErrors {
+  signupUsername?: string;  
+  signupEmail?: string;
+  mobileNumber?: string;
+  signupPassword?: string;  
+  confirmPassword?: string
+}
+
 function Signup() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     signupUsername: "",
     signupEmail: "",
     mobileNumber: "",
@@ -10,23 +27,23 @@ function Signup() {
     confirmPassword: "",
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<FormErrors>({});
 
-  function validateEmail(email) {
+  function validateEmail(email: string): boolean {
     const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     return emailPattern.test(String(email).toLowerCase());
   }
-  function validatePassword(password) {
+  function validatePassword(password: string): boolean {
     const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{6,}$/;
     return passwordPattern.test(password);
   }
 
-  function validateMobileNumber(mobileNumber) {
+  function validateMobileNumber(mobileNumber: string): boolean {
     const mobilePattern = /^[0-9]{10}$/;
     return mobilePattern.test(String(mobileNumber));
   }
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -35,7 +52,7 @@ function Signup() {
   };
   
   const validateForm = () => {
-    let formErrors = {};
+    const formErrors: FormErrors = {};
     let isValid = true;
 
     if(!formData.signupUsername){
@@ -83,7 +100,7 @@ function Signup() {
     return isValid;
   }
   
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if(validateForm()){
       alert("Form submitted successfully")
