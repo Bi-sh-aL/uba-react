@@ -1,24 +1,43 @@
-import React from "react";
-import { useState, ChangeEvent, FormEvent } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios"
 
 interface FormData {
-  loginEmail: string;
-  loginPassword: string;
+  email: string;
+  password: string;
 }
 
 interface FormErrors {
-  loginEmail?: string;
-  loginPassword?: string;
+  email?: string;
+  password?: string;
 }
 
 function Login() {
   const [formData, setFormData] = useState<FormData>({
-    loginEmail: "",
-    loginPassword: "",
+    email: "",
+    password: "",
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken = JSON.parse(atob(token.split('.')[1]));
+      const userRole = decodedToken.role;
+
+      // Redirect based on role
+      if (userRole === "Admin") {
+        navigate("/user-list");
+      } else {
+        navigate("/profile-edit");
+      }
+      
+    }
+  }, [navigate]);
+
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -37,19 +56,19 @@ function Login() {
     const formErrors: FormErrors = {};
     let isValid = true;
 
-    if (!formData.loginEmail) {
-      formErrors.loginEmail = "Please enter email address";
+    if (!formData.email) {
+      formErrors.email = "Please enter email address";
       isValid = false;
-    } else if (!validateEmail(formData.loginEmail)) {
-      formErrors.loginEmail = "Invalid email address";
+    } else if (!validateEmail(formData.email)) {
+      formErrors.email = "Invalid email address";
       isValid = false;
     }
 
-    if (!formData.loginPassword) {
-      formErrors.loginPassword = "Please enter password";
+    if (!formData.password) {
+      formErrors.password = "Please enter password";
       isValid = false;
-    } else if (formData.loginPassword.length < 6) {
-      formErrors.loginPassword = "Password must be at least 6 characters";
+    } else if (formData.password.length < 6) {
+      formErrors.password = "Password must be at least 6 characters";
       isValid = false;
     }
 
@@ -57,11 +76,45 @@ function Login() {
     return isValid;
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validateForm()) {
-      // Handle successful form submission
-      console.log("Form submitted successfully");
+      try {
+        const response = await axios.post('http://localhost:8080/users/login', {
+          email: formData.email,
+          password: formData.password,
+        });
+        
+        const { token } = response.data;
+        //store the token in local storage
+        localStorage.setItem('token', token);
+
+        // Handle successful response
+        console.log('Login successful:', token);
+        
+        
+        
+           // Decode the token to get the user role
+           let userRole = '';
+           try {
+             const decodedToken = JSON.parse(atob(token.split('.')[1]));
+             userRole = decodedToken.role;
+           } catch (error) {
+             console.error('Invalid token structure:', error);
+             return; // Handle invalid token scenario
+           }
+
+         // Redirect based on role
+         if (userRole === "Admin") {
+          navigate("/user-list");
+        } else {
+          navigate("/profile-edit");
+        }
+  
+      } catch (error) {
+        console.error('Error during login:', error);
+        setErrors({ password: 'Incorrect email or password' });
+      }
     }
   };
 
@@ -74,52 +127,53 @@ function Login() {
             <div className="mb-4">
               <label
                 className="block text-gray-700 text-md font-bold mb-2"
-                htmlFor="loginEmail"
+                htmlFor="email"
               >
                 Email
               </label>
               <input
                 className={`shadow border rounded w-full py-2 px-3 text-gray-700 ${
-                  errors.loginEmail ? "border-red-500" : ""
+                  errors.email ? "border-red-500" : ""
                 }`}
                 type="text"
-                id="loginEmail"
-                name="loginEmail"
+                id="email"
+                name="email"
                 placeholder="Enter email"
-                value={formData.loginEmail}
+                value={formData.email}
                 onChange={handleChange}
               />
               <span className="text-red-600 text-sm mt-2">
-                {errors.loginEmail}
+                {errors.email}
               </span>
             </div>
             <div className="mb-4">
               <label
                 className="block text-gray-700 text-md font-bold mb-2"
-                htmlFor="loginPassword"
+                htmlFor="password"
               >
                 Password
               </label>
               <input
                 className={`shadow border rounded w-full py-2 px-3 text-gray-700 ${
-                  errors.loginPassword ? "border-red-500" : ""
+                  errors.password ? "border-red-500" : ""
                 }`}
                 type="password"
-                id="loginPassword"
-                name="loginPassword"
+                id="password"
+                name="password"
                 placeholder="Enter password"
-                value={formData.loginPassword}
+                value={formData.password}
                 onChange={handleChange}
               />
-              {errors.loginPassword && (
+              {errors.password && (
                 <span className="text-red-600 none text-sm mt-2">
-                  {errors.loginPassword}
+                  {errors.password}
                 </span>
               )}
             </div>
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 w-full"
               type="submit"
+              
             >
               Login
             </button>

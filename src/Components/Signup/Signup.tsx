@@ -1,8 +1,10 @@
-import { useState, ChangeEvent, FormEvent } from "react";
+import React, { useState, ChangeEvent, FormEvent } from "react";
 import { Link } from "react-router-dom";
-
+import axios, { AxiosError } from "axios";
 
 interface FormData {
+  firstName: string;
+  lastName: string;
   signupUsername: string;
   signupEmail: string;
   mobileNumber: string;
@@ -11,15 +13,19 @@ interface FormData {
 }
 
 interface FormErrors {
+  firstName?: string;
+  lastName?: string;
   signupUsername?: string;  
   signupEmail?: string;
   mobileNumber?: string;
   signupPassword?: string;  
-  confirmPassword?: string
+  confirmPassword?: string;
 }
 
 function Signup() {
   const [formData, setFormData] = useState<FormData>({
+    firstName: "",
+    lastName: "",
     signupUsername: "",
     signupEmail: "",
     mobileNumber: "",
@@ -28,11 +34,13 @@ function Signup() {
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   function validateEmail(email: string): boolean {
     const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     return emailPattern.test(String(email).toLowerCase());
   }
+
   function validatePassword(password: string): boolean {
     const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{6,}$/;
     return passwordPattern.test(password);
@@ -50,69 +58,149 @@ function Signup() {
       [name]: value,
     });
   };
-  
+
   const validateForm = () => {
     const formErrors: FormErrors = {};
     let isValid = true;
 
-    if(!formData.signupUsername){
+    if (!formData.firstName) {
+      formErrors.firstName = "First name is required";
+      isValid = false;
+    }
+
+    if (!formData.lastName) {
+      formErrors.lastName = "Last name is required";
+      isValid = false;
+    }
+
+    if (!formData.signupUsername) {
       formErrors.signupUsername = "Username is required";
       isValid = false;
     }
 
-    if(!formData.signupEmail){
-      formErrors.signupEmail = "Email address is required"
+    if (!formData.signupEmail) {
+      formErrors.signupEmail = "Email address is required";
       isValid = false;
-    }else if(!validateEmail(formData.signupEmail)){
-      formErrors.signupEmail = "Invalid email address"
+    } else if (!validateEmail(formData.signupEmail)) {
+      formErrors.signupEmail = "Invalid email address";
       isValid = false;
     }
 
-    if(!formData.signupPassword){
-      formErrors.signupPassword = "Password is required"
+    if (!formData.signupPassword) {
+      formErrors.signupPassword = "Password is required";
       isValid = false;
-    }else if(formData.signupPassword.length < 6){
-      formErrors.signupPassword = "Password must be at least 6 characters"
+    } else if (formData.signupPassword.length < 6) {
+      formErrors.signupPassword = "Password must be at least 6 characters";
       isValid = false;
-    }else if(!validatePassword(formData.signupPassword)){
-      formErrors.signupPassword = "Password must contain atleast one UPPERCASE, one number and one special character"
-      isValid= false;
+    } else if (!validatePassword(formData.signupPassword)) {
+      formErrors.signupPassword = "Password must contain at least one UPPERCASE letter, one number, and one special character";
+      isValid = false;
     }
-    
+
     if (!formData.confirmPassword) {
-      formErrors.confirmPassword = 'Please confirm password';
+      formErrors.confirmPassword = "Please confirm password";
       isValid = false;
-    }
-    else if(formData.signupPassword !== formData.confirmPassword){
-      formErrors.confirmPassword = "Passwords do not match"
+    } else if (formData.signupPassword !== formData.confirmPassword) {
+      formErrors.confirmPassword = "Passwords do not match";
       isValid = false;
     }
 
-    if(!formData.mobileNumber){
-      formErrors.mobileNumber = "Mobile number is required"
+    if (!formData.mobileNumber) {
+      formErrors.mobileNumber = "Mobile number is required";
+      isValid = false;
+    } else if (!validateMobileNumber(formData.mobileNumber)) {
+      formErrors.mobileNumber = "Invalid mobile number";
       isValid = false;
     }
-    else if(!validateMobileNumber(formData.mobileNumber)){
-      formErrors.mobileNumber = "Invalid mobile number"
-      isValid = false;
-    }
+
     setErrors(formErrors);
     return isValid;
-  }
-  
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if(validateForm()){
-      alert("Form submitted successfully")
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    if (validateForm()) {
+      try {
+        const response = await axios.post('http://localhost:8080/users/signup', {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          username: formData.signupUsername,
+          email: formData.signupEmail,
+          mobileNumber: formData.mobileNumber,
+          password: formData.signupPassword,
+        });
+
+        console.log("User created successfully:", response.data);
+        // Optionally redirect or show success message here
+
+      } catch (error: any) {
+        console.error("Error during signup:", error);
+        // Handle errors from the API, e.g., show error message to the user
+        if (error.response && error.response.data) {
+          setErrors({ signupEmail: error.response.data.status });
+        } else {
+          setErrors({ signupEmail: 'An unexpected error occurred.' });
+        }
+      } finally {
+        setIsLoading(false); // End loading
+      }
+    } else {
+      setIsLoading(false); // End loading if validation fails
     }
-  }
+  };
 
   return (
     <>
-      <div className=" flex items-center min-h-screen min-w-screen justify-center py-4 bg-gray-700">
-        <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+      <div className="flex items-center min-h-screen min-w-screen justify-center py-4 bg-gray-700">
+        <div className="w-full max-w-3xl bg-white rounded-lg shadow-md p-6">
           <h2 className="text-center mb-3 text-2xl font-bold">Sign Up</h2>
-          <form id="signupForm" onSubmit={handleSubmit}>
+          <form id="signupForm" onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="mb-4">
+              <label
+                className="block text-md text-gray-700 mb-2 font-bold"
+                htmlFor="firstName"
+              >
+                First Name
+              </label>
+              <input
+                className={`border w-full py-2 px-2 text-gray-700 shadow rounded ${
+                  errors.firstName ? "border-red-500" : ""
+                }`}
+                type="text"
+                id="firstName"
+                name="firstName"
+                placeholder="Enter first name"
+                value={formData.firstName}
+                onChange={handleChange}
+              />
+              <span className="text-red-600 text-sm mt-2">
+                {errors.firstName}
+              </span>
+            </div>
+            <div className="mb-4">
+              <label
+                className="block text-md text-gray-700 mb-2 font-bold"
+                htmlFor="lastName"
+              >
+                Last Name
+              </label>
+              <input
+                className={`border w-full py-2 px-2 text-gray-700 shadow rounded ${
+                  errors.lastName ? "border-red-500" : ""
+                }`}
+                type="text"
+                id="lastName"
+                name="lastName"
+                placeholder="Enter last name"
+                value={formData.lastName}
+                onChange={handleChange}
+              />
+              <span className="text-red-600 text-sm mt-2">
+                {errors.lastName}
+              </span>
+            </div>
             <div className="mb-4">
               <label
                 className="block text-md text-gray-700 mb-2 font-bold"
@@ -131,9 +219,7 @@ function Signup() {
                 value={formData.signupUsername}
                 onChange={handleChange}
               />
-              <span
-                className="text-red-600 text-sm mt-2"
-              >
+              <span className="text-red-600 text-sm mt-2">
                 {errors.signupUsername}
               </span>
             </div>
@@ -155,15 +241,13 @@ function Signup() {
                 value={formData.signupEmail}
                 onChange={handleChange}
               />
-               <span
-                className="text-red-600 text-sm mt-2"
-              >
+              <span className="text-red-600 text-sm mt-2">
                 {errors.signupEmail}
               </span>
             </div>
             <div className="mb-4">
               <label
-                className="block font-bold mb-2 text-mm text-gray-700"
+                className="block font-bold mb-2 text-gray-700"
                 htmlFor="mobileNumber"
               >
                 Mobile Number
@@ -179,9 +263,7 @@ function Signup() {
                 value={formData.mobileNumber}
                 onChange={handleChange}
               />
-             <span
-                className="text-red-600 text-sm mt-2"
-              >
+              <span className="text-red-600 text-sm mt-2">
                 {errors.mobileNumber}
               </span>
             </div>
@@ -203,9 +285,7 @@ function Signup() {
                 value={formData.signupPassword}
                 onChange={handleChange}
               />
-              <span
-                className="text-red-600 text-sm mt-2"
-              >
+              <span className="text-red-600 text-sm mt-2">
                 {errors.signupPassword}
               </span>
             </div>
@@ -223,23 +303,22 @@ function Signup() {
                 type="password"
                 id="confirmPassword"
                 name="confirmPassword"
-                placeholder="Confrim password"
+                placeholder="Confirm password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
               />
-              <span
-                className="text-red-600 text-sm mt-2"
-              >
+              <span className="text-red-600 text-sm mt-2">
                 {errors.confirmPassword}
               </span>
             </div>
             <button
-              className="bg-blue-500 hover:bg-blue-700 text-white py-2 w-full rounded "
+              className="bg-blue-500 hover:bg-blue-700 text-white py-2 w-full rounded col-span-1 md:col-span-2"
               type="submit"
+              disabled={isLoading}
             >
-              Sign Up
+              {isLoading ? 'Signing up...' : 'Sign Up'}
             </button>
-            <p className="text-center text-l text-gray-700 font-medium mt-3">
+            <p className="text-center text-l text-gray-700 font-medium mt-3 col-span-1 md:col-span-2">
               Already have an account?{" "}
               <Link
                 to={"/login"}
