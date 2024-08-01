@@ -25,7 +25,7 @@ describe('Login Component', () => {
     renderComponent();
 
     expect(screen.getByRole('heading', {name:/Login/i})).toBeInTheDocument();
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+    expect(screen.getByLabelText('Login ID')).toBeInTheDocument();
     expect(screen.getByLabelText('Password')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
     expect(screen.getByText("Don't have an account?").closest('p')).toBeInTheDocument();
@@ -45,7 +45,7 @@ describe('Login Component', () => {
   it('validates form submission with invalid email', () => {
     renderComponent();
 
-    const emailInput = screen.getByLabelText('Email');
+    const emailInput = screen.getByLabelText('Login ID');
     const passwordInput = screen.getByLabelText('Password');
     const submitButton = screen.getByRole('button', { name: /login/i });
 
@@ -60,7 +60,7 @@ describe('Login Component', () => {
   it('handles form submission with valid data', () => {
     renderComponent();
 
-    const emailInput = screen.getByLabelText('Email');
+    const emailInput = screen.getByLabelText('Login ID');
     const passwordInput = screen.getByLabelText('Password');
     const submitButton = screen.getByRole('button', { name: /login/i });
 
@@ -73,7 +73,7 @@ describe('Login Component', () => {
   it('shows error message for invalid email format', () => {
     renderComponent();
 
-    const emailInput = screen.getByLabelText('Email');
+    const emailInput = screen.getByLabelText('Login ID');
     fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
 
     const submitButton = screen.getByRole('button', { name: /login/i });
@@ -97,7 +97,7 @@ describe('Login Component', () => {
   it('updates form fields correctly', () => {
     renderComponent();
 
-    const emailInput = screen.getByLabelText('Email');
+    const emailInput = screen.getByLabelText('Login ID');
     const passwordInput = screen.getByLabelText('Password');
 
     fireEvent.change(emailInput, { target: { value: 'user@example.com' } });

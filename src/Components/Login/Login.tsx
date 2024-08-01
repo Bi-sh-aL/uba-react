@@ -76,7 +76,7 @@ function Login() {
                 className="block text-gray-700 text-md font-bold mb-2"
                 htmlFor="loginEmail"
               >
-                Email
+                Login ID
               </label>
               <input
                 className={`shadow border rounded w-full py-2 px-3 text-gray-700 ${
