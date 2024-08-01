@@ -28,12 +28,7 @@ function Login() {
       const decodedToken = JSON.parse(atob(token.split('.')[1]));
       const userRole = decodedToken.role;
 
-      // Redirect based on role
-      if (userRole === "Admin") {
-        navigate("/user-list");
-      } else {
-        navigate("/profile-edit");
-      }
+      navigate((userRole === 'Admin') ? '/user-list' : '/profile-edit');
       
     }
   }, [navigate]);
@@ -88,7 +83,7 @@ function Login() {
         const { token } = response.data;
         //store the token in local storage
         localStorage.setItem('token', token);
-
+          
         // Handle successful response
         console.log('Login successful:', token);
         
@@ -104,12 +99,10 @@ function Login() {
              return; // Handle invalid token scenario
            }
 
-         // Redirect based on role
-         if (userRole === "Admin") {
-          navigate("/user-list");
-        } else {
-          navigate("/profile-edit");
-        }
+         // Use setTimeout for navigation
+        setTimeout(() => {
+          navigate(userRole === "Admin" ? "/user-list" : "/profile-edit");
+        }, 100); 
   
       } catch (error) {
         console.error('Error during login:', error);
