@@ -6,6 +6,9 @@ function UserList() {
     map: any;name: string
 }}[]>([]);
   const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 5;
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -14,9 +17,15 @@ function UserList() {
         const response = await axios.get('http://localhost:8080/users',{ 
           headers: {
             Authorization: `Bearer ${token}`
+          },
+          params: {
+            page, 
+            limit
           }
         });
-        setUsers(response.data);
+
+        setUsers(response.data.data || []);
+        setTotalPages(response.data.totalPages)
         
       } catch (error) {
         setError("Failed to fetch users");
@@ -25,13 +34,13 @@ function UserList() {
     }
 
     fetchUsers()
-  }, []);
+  }, [page]);
 
  
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="container min-h-screen flex items-center justify-center mx-auto p-4 bg-gray-700">
+    <div className=" min-h-screen flex items-center justify-center mx-auto p-4 bg-gray-700">
       
       <div className="overflow-x-auto">
       <h2 className="text-4xl font-bold mb-5 text-center block text-white">User Listing</h2>
@@ -67,6 +76,23 @@ function UserList() {
             ))}
           </tbody>
         </table>
+        <div className="flex align-items-center justify-center mt-2 space-x-10">
+        <button
+          className= "bg-gray-500 text-white py-2 px-4 rounded"
+          disabled= {page === 1}
+          onClick={() => setPage(prevPage => prevPage - 1)}
+        >
+          Previous
+        </button>
+        <span className="text-white">Page {page} of {totalPages}</span>
+        <button
+          className= "bg-gray-500 text-white py-2 px-4 rounded"
+          disabled= {page === totalPages}
+          onClick={() => setPage(prevPage => prevPage + 1)}
+        >
+          Next
+        </button>
+        </div>
       </div>
     </div>
   );

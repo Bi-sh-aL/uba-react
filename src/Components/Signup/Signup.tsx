@@ -1,5 +1,5 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios, { AxiosError } from "axios";
 
 interface FormData {
@@ -35,6 +35,8 @@ function Signup() {
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   function validateEmail(email: string): boolean {
     const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -133,7 +135,8 @@ function Signup() {
         });
 
         console.log("User created successfully:", response.data);
-        // Optionally redirect or show success message here
+        
+        navigate("/login");
 
       } catch (error: any) {
         console.error("Error during signup:", error);
