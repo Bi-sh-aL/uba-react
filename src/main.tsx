@@ -26,7 +26,7 @@ const createRoutes = () => {
       <Route path='login' element={<Login />} />
       <Route path='signup' element={<Signup />} />
       <Route path='profile-edit' element={<Protected Component={ProfileEdit} />} />
-       <Route path='user-list' element={<Protected Component={UserList} />} />
+      <Route path='user-list' element={<Protected Component={UserList} />} />
       
     </Route>
   );
