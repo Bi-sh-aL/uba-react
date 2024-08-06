@@ -1,6 +1,6 @@
 import Login from "./Components/Login/Login";
 import Signup from "./Components/Signup/Signup";
-import ProfileEdit from "./Components/Pofile/ProfileEdit";
+import ProfileEdit from "./Components/PofileEdit/ProfileEdit";
 import UserList from "./Components/UserList/UserList";
 import Home from "./Components/Home/Home";
 import Header from "./Components/Header/Header";

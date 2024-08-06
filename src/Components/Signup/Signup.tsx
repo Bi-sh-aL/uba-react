@@ -141,7 +141,7 @@ function Signup() {
           password: formData.signupPassword,
         });
 
-        console.log("User created successfully:", response.data);
+        alert("User created successfully:");
         navigate("/login");
 
       } catch (error: any) {

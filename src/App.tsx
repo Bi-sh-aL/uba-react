@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import {Header} from "./Index.ts";
 
 function App() {
+
  
   return (
     <>
-      <Header />
+      <Header/>
       <Outlet />
     </>
   );

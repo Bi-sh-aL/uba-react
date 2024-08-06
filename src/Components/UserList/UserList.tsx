@@ -36,6 +36,20 @@ function UserList() {
     fetchUsers()
   }, [page]);
 
+  const handleDelete = async (id: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`http://localhost:8080/users/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`  
+        }
+      });
+      setUsers(users.filter((user) => user.id !== id));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
  
   if (error) return <div>{error}</div>;
 
@@ -69,13 +83,18 @@ function UserList() {
                   {user.role.map((role: { name: string; }) => role.name).join(", ")}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap flex space-x-2">
-                  <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Update</button>
-                  <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Delete</button>
+                  {/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Update</button> */}
+                  <button
+                    onClick={() => handleDelete(user.id)} 
+                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                      Delete
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </table> 
+        +
         <div className="flex align-items-center justify-center mt-2 space-x-10">
         <button
           className= "bg-gray-500 text-white py-2 px-4 rounded"

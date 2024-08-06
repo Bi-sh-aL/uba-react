@@ -5,16 +5,20 @@ export default function Header() {
     const [ isLoggedIn, setIsLoggedIn ] = useState(false);
 
     useEffect(() => {
+        setInterval(() => {
+            const token = localStorage.getItem('token');
+            setIsLoggedIn(!!token);
+        }, 1)
         // Check if user is logged in based on token in local storage
-        const token = localStorage.getItem('token');
-        setIsLoggedIn(!!token);
+        // const token = localStorage.getItem('token');
+        // setIsLoggedIn(!!token);
     }, []);
 
     const handleLogout = () => {
         // Remove token from local storage
         localStorage.removeItem('token');
         setIsLoggedIn(false);
-        window.location.href = "/"; // Redirect to home
+        window.location.href = "/login"; // Redirect to home
     };
     
 
@@ -27,12 +31,15 @@ export default function Header() {
                 </Link>
                 <div className="flex items-center lg:order-2 md:order-2">
                     {isLoggedIn ? (
+                        <>
+                        
                         <button
                             onClick={handleLogout}
                             className="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 focus:outline-none"
                         >
                             Log Out
                         </button>
+                        </>
                     ) : (
                         <>
                             <Link
@@ -62,6 +69,25 @@ export default function Header() {
                             >
                                 Home
                             </NavLink>
+                            
+                        </li>
+                        <li>
+                            <NavLink
+                                to={"/profile-edit"}
+                                className="block py-2 pr-4 pl-3 duration-200 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 hover:text-gray-700 lg:p-0"
+                            >
+                                Edit Profile
+                            </NavLink>
+                            
+                        </li>
+                        <li>
+                            <NavLink
+                                to={"/user-list"}
+                                className="block py-2 pr-4 pl-3 duration-200 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 hover:text-gray-700 lg:p-0"
+                            >
+                                User List
+                            </NavLink>
+                            
                         </li>
                     </ul>
                 </div>

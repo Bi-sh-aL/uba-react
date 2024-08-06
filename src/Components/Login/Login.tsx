@@ -102,7 +102,7 @@ function Login() {
          // Use setTimeout for navigation
         setTimeout(() => {
           navigate(userRole === "Admin" ? "/user-list" : "/profile-edit");
-        }, 100); 
+        }, 1); 
   
       } catch (error) {
         console.error('Error during login:', error);

@@ -4,6 +4,7 @@ import App from './App'
 import './index.css'
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom'
 import { Home, Login, Signup, ProfileEdit, UserList} from "./Index"
+import Protected from './Components/Protected'
 
 // Function to get user role from token
 const getUserRole = () => {
@@ -24,9 +25,9 @@ const createRoutes = () => {
       <Route path="" element={<Home />} />
       <Route path='login' element={<Login />} />
       <Route path='signup' element={<Signup />} />
-      /* Role-based routes */
-      {userRole === 'Admin' && <Route path='user-list' element={<UserList />} />}
-      {userRole && userRole !== 'Admin' && <Route path='profile-edit' element={<ProfileEdit />} />}
+      <Route path='profile-edit' element={<Protected Component={ProfileEdit} />} />
+       <Route path='user-list' element={<Protected Component={UserList} />} />
+      
     </Route>
   );
 };
