@@ -5,6 +5,7 @@ import './index.css'
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom'
 import { Home, Login, Signup, ProfileEdit, UserList} from "./Index"
 import Protected from './Components/Protected'
+import Profile from './Components/Profile/Profile'
 
 // Function to get user role from token
 const getUserRole = () => {
@@ -25,6 +26,7 @@ const createRoutes = () => {
       <Route path="" element={<Home />} />
       <Route path='login' element={<Login />} />
       <Route path='signup' element={<Signup />} />
+      <Route path='profile' element={<Profile />} />
       <Route path='profile-edit' element={<Protected Component={ProfileEdit} />} />
       <Route path='user-list' element={<Protected Component={UserList} />} />
       

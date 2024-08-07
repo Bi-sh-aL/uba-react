@@ -28,7 +28,7 @@ function Login() {
       const decodedToken = JSON.parse(atob(token.split('.')[1]));
       const userRole = decodedToken.role;
 
-      navigate((userRole === 'Admin') ? '/user-list' : '/profile-edit');
+      navigate("/profile");
       
     }
   }, [navigate]);
@@ -101,7 +101,7 @@ function Login() {
 
          // Use setTimeout for navigation
         setTimeout(() => {
-          navigate(userRole === "Admin" ? "/user-list" : "/profile-edit");
+          navigate("/profile");
         }, 1); 
   
       } catch (error) {
