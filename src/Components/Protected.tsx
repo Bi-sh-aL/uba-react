@@ -1,23 +1,28 @@
-import React, { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 
-function Protected(props: { Component: any }) {
-    const {Component} = props
-    const navigate = useNavigate();
-    useEffect(() => {
-        let token = localStorage.getItem('token');
-        if(token){
-            const decodedToken = JSON.parse(atob(token.split('.')[1]));
-            const userRole = decodedToken.role;
-        }else{
-            navigate('/login')
-        }
-    })
-  return (
-    <div>
-        <Component/>
-    </div>
-  )
-}
+// Function to get user role from token
+const getUserRole = () => {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
 
-export default Protected
+  const decodedToken = JSON.parse(atob(token.split('.')[1]));
+  return decodedToken.role || null;
+};
+
+const Protected = ({ Component, requiredRole }: { Component: React.ComponentType; requiredRole?: string }) => {
+  const isAuthenticated = !!localStorage.getItem('token');
+  const userRole = getUserRole();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  if (requiredRole && userRole !== requiredRole) {
+    return <Navigate to="/forbidden" />;
+  }
+
+  return <Component />;
+};
+
+export default Protected;

@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios"
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai"; 
 
 interface FormData {
   email: string;
@@ -19,6 +20,7 @@ function Login() {
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,9 +28,8 @@ function Login() {
     const token = localStorage.getItem('token');
     if (token) {
       const decodedToken = JSON.parse(atob(token.split('.')[1]));
-      const userRole = decodedToken.role;
 
-      navigate("/profile");
+      navigate("/");
       
     }
   }, [navigate]);
@@ -101,7 +102,7 @@ function Login() {
 
          // Use setTimeout for navigation
         setTimeout(() => {
-          navigate("/profile");
+          navigate("/");
         }, 1); 
   
       } catch (error) {
@@ -109,6 +110,9 @@ function Login() {
         setErrors({ password: 'Incorrect email or password' });
       }
     }
+  };
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -139,7 +143,7 @@ function Login() {
                 {errors.email}
               </span>
             </div>
-            <div className="mb-4">
+            <div className="mb-4 relative">
               <label
                 className="block text-gray-700 text-md font-bold mb-2"
                 htmlFor="password"
@@ -150,13 +154,19 @@ function Login() {
                 className={`shadow border rounded w-full py-2 px-3 text-gray-700 ${
                   errors.password ? "border-red-500" : ""
                 }`}
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
                 name="password"
                 placeholder="Enter password"
                 value={formData.password}
                 onChange={handleChange}
               />
+               <span
+                className="absolute right-2 top-10 text-gray-700 cursor-pointer translate-y-2"
+                onClick={toggleShowPassword}
+              >
+                {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+              </span>
               {errors.password && (
                 <span className="text-red-600 none text-sm mt-2">
                   {errors.password}
