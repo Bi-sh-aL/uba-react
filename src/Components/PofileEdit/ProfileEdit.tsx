@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode, JwtPayload } from "jwt-decode";
+import { Link, NavLink } from "react-router-dom";
 
 interface DecodedToken extends JwtPayload {
   id: number;
@@ -190,12 +191,20 @@ function ProfileEdit() {
               placeholder="Confirm new password"
             />
           </div>
+          
           <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-700 text-white py-2 w-full rounded col-span-1 md:col-span-2"
           >
             Update Profile
           </button>
+        
+            
+        
+            <NavLink to={"/profile"} 
+            className="bg-red-500 hover:bg-red-700 text-white text-center py-2 w-full rounded col-span-1 md:col-span-2">Cancel</NavLink>
+        
+          
         </form>
       </div>
     </div>
