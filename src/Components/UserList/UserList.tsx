@@ -45,6 +45,7 @@ function UserList() {
         }
       });
       setUsers(users.filter((user) => user.id !== id));
+      alert("User deleted successfully");
     } catch (error) {
       console.error(error);
     }

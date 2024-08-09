@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode, JwtPayload } from "jwt-decode";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface DecodedToken extends JwtPayload {
   id: number;
@@ -10,11 +11,18 @@ interface DecodedToken extends JwtPayload {
 
 function ProfileEdit() {
   const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [mobileNumber, setMobileNumber] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [mobileNumber, setMobileNumber] = useState("");
+    const [oldPassword, setOldPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [error, setError] = useState<string | null>(null);
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -48,10 +56,106 @@ function ProfileEdit() {
     
   }, []);
 
-  if (error) {
-    return <div>{error}</div>;
-    
-  }
+  const validateFields = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (email.trim()) {
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        if (!emailPattern.test(email)) {
+            newErrors.email = "Invalid email address";
+        }
+    }
+
+    if (mobileNumber.trim()) {
+        const mobilePattern = /^[0-9]{10}$/;
+        if (!mobilePattern.test(mobileNumber)) {
+            newErrors.mobileNumber = "Invalid mobile number";
+        }
+    }
+
+    if (newPassword || confirmPassword) {
+        if (newPassword !== confirmPassword) {
+            newErrors.confirmPassword = "Passwords do not match";
+        }
+
+        const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{6,}$/;
+        if (!passwordPattern.test(newPassword)) {
+            newErrors.newPassword =
+                "Password must contain at least one UPPERCASE letter, one number, and one special character";
+        }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+};
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+
+    if (!validateFields()) {
+        return;
+    }
+
+    const payload: any = {};
+
+    if (firstName.trim()) {
+        payload.firstName = firstName;
+    }
+
+    if (lastName.trim()) {
+        payload.lastName = lastName;
+    }
+
+    if (username.trim()) {
+        payload.username = username;
+    }
+
+    if (email.trim()) {
+        payload.email = email;
+    }
+
+    if (mobileNumber.trim()) {
+        payload.mobileNumber = mobileNumber;
+    }
+
+    if (newPassword || confirmPassword) {
+        payload.oldPassword = oldPassword;
+        payload.newPassword = newPassword;
+    }
+
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            setErrors({ token: "Token not found" });
+            return;
+        }
+
+        const decodedToken = jwtDecode<DecodedToken>(token);
+        const userId = decodedToken.id;
+
+        const response = await axios.patch(
+            `http://localhost:8080/users/${userId}`,
+            payload,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    credentials: "include",
+                },
+            }
+        );
+
+        if (response.status === 200) {
+            alert("Profile updated successfully.");
+           navigate("/");
+           
+            
+        }
+    } catch (error: any) {
+        console.error("Error updating profile:", error);
+        setErrors({ response: error.response?.data?.status || "Failed to update profile." });
+    }
+};
 
   return (
     <div className="flex items-center min-h-screen min-w-screen justify-center py-4 bg-gray-700">
@@ -60,6 +164,7 @@ function ProfileEdit() {
         <form
           id="profileForm"
           className="grid grid-cols-1 md:grid-cols-2 gap-2"
+          onSubmit = {handleSubmit}
         >
           <div className="mb-4">
             <label
@@ -159,6 +264,7 @@ function ProfileEdit() {
               id="currentPassword"
               name="currentPassword"
               placeholder="Enter your old password"
+              onChange={(e) => setOldPassword(e.target.value)}
             />
           </div>
           <div className="mb-4">
@@ -174,6 +280,7 @@ function ProfileEdit() {
               id="newPassword"
               name="newPassword"
               placeholder="Enter new password"
+              onChange={(e) => setNewPassword(e.target.value)}
             />
           </div>
           <div className="mb-4">
@@ -189,6 +296,7 @@ function ProfileEdit() {
               id="confirmPassword"
               name="confirmPassword"
               placeholder="Confirm new password"
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </div>
           
@@ -201,7 +309,7 @@ function ProfileEdit() {
         
             
         
-            <NavLink to={"/profile"} 
+            <NavLink to={"/"} 
             className="bg-red-500 hover:bg-red-700 text-white text-center py-2 w-full rounded col-span-1 md:col-span-2">Cancel</NavLink>
         
           
